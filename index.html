@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGRAVAT · Meta Ads Command Center</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#14171c; --panel2:#1a1e25; --line:#262b33;
+    --text:#e8eaed; --dim:#9aa3ad; --faint:#6b7480;
+    --gold:#d4a94e; --gold2:#f0c56a; --green:#4ade80; --red:#f87171; --amber:#fbbf24; --blue:#60a5fa;
+    --r:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;font-size:15px;line-height:1.55;padding-bottom:60px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+  header{padding:26px 0 14px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .brand{font-size:21px;font-weight:700;letter-spacing:.06em}
+  .brand span{color:var(--gold)}
+  .today{color:var(--dim);font-size:13px}
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 22px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
+  nav button{background:transparent;border:1px solid var(--line);color:var(--dim);padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13.5px;font-weight:600;transition:all .18s}
+  nav button:hover{color:var(--text);border-color:var(--faint)}
+  nav button.on{background:var(--gold);border-color:var(--gold);color:#14161a}
+  .tab{display:none;animation:fade .25s ease}
+  .tab.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+  .card h2{font-size:16px;margin-bottom:10px}
+  .card h2 em{color:var(--gold);font-style:normal}
+  .sub{color:var(--dim);font-size:13.5px}
+  .grid{display:grid;gap:12px}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .kpi .l{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:5px}
+  .kpi .v{font-size:22px;font-weight:700;margin-top:2px}
+  .kpi .t{font-size:11.5px;margin-top:2px;color:var(--faint)}
+  .good{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--amber)}
+  .info{display:inline-flex;width:15px;height:15px;border-radius:50%;border:1px solid var(--faint);color:var(--faint);font-size:10px;align-items:center;justify-content:center;cursor:pointer;flex:none}
+  .info:hover{border-color:var(--gold);color:var(--gold)}
+  label{display:block;font-size:12.5px;color:var(--dim);margin:10px 0 4px}
+  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px 11px;font-size:14.5px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+  .btn{background:var(--gold);color:#14161a;border:none;border-radius:10px;padding:11px 20px;font-weight:700;font-size:14.5px;cursor:pointer;margin-top:14px}
+  .btn:hover{background:var(--gold2)}
+  .btn2{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer}
+  .btn2:hover{color:var(--text);border-color:var(--faint)}
+  .coach{border-left:3px solid var(--gold);background:var(--panel2);border-radius:0 10px 10px 0;padding:11px 14px;margin-bottom:9px;font-size:14px}
+  .coach b{color:var(--gold2)}
+  .coach.red{border-left-color:var(--red)} .coach.red b{color:var(--red)}
+  .coach.green{border-left-color:var(--green)} .coach.green b{color:var(--green)}
+  .coach.amber{border-left-color:var(--amber)} .coach.amber b{color:var(--amber)}
+  .fstage{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .fbar{height:44px;border-radius:9px;background:linear-gradient(90deg,var(--gold),#8a6f34);display:flex;align-items:center;padding:0 14px;font-weight:700;color:#14161a;min-width:130px;transition:width .5s;white-space:nowrap;font-size:13.5px}
+  .fmeta{font-size:12.5px;color:var(--dim)}
+  .drop{color:var(--red);font-size:12px;margin:2px 0 10px 6px}
+  .lesson{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+  .lesson>button{width:100%;text-align:left;background:var(--panel2);border:none;color:var(--text);padding:13px 16px;font-size:14.5px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .lesson>button:after{content:"+";color:var(--gold);font-size:18px}
+  .lesson.open>button:after{content:"–"}
+  .lesson .body{display:none;padding:14px 16px;font-size:14px;border-top:1px solid var(--line)}
+  .lesson.open .body{display:block}
+  .lesson .body p{margin-bottom:8px}
+  .eg{background:rgba(212,169,78,.08);border:1px solid rgba(212,169,78,.25);border-radius:9px;padding:9px 12px;font-size:13.5px;margin:8px 0}
+  .eg b{color:var(--gold2)}
+  .mist{color:var(--red);font-size:13.5px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+  .lead{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;flex-wrap:wrap}
+  .lead .nm{font-weight:600;min-width:110px}
+  .lead .src{font-size:11.5px;color:var(--faint)}
+  .lead select{width:auto;padding:5px 8px;font-size:12.5px}
+  .lead input{flex:1;min-width:120px;padding:5px 9px;font-size:12.5px}
+  .del{color:var(--faint);cursor:pointer;font-size:16px;padding:0 4px}
+  .del:hover{color:var(--red)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{color:var(--faint);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--dim)}
+  td:first-child{color:var(--text)}
+  .flag{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:9px;padding:10px 13px;margin-bottom:8px;font-size:13.5px}
+  .flag b{color:var(--red)}
+  .fix{color:var(--green);font-size:13px;margin-top:3px}
+  .ok{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:9px;padding:10px 13px;font-size:13.5px}
+  .check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .check:last-child{border:none}
+  .check input{width:17px;height:17px;margin-top:2px;flex:none;accent-color:var(--gold)}
+  .check .t{font-size:14px}
+  .check .d{font-size:12.5px;color:var(--faint)}
+  .check.done .t{text-decoration:line-through;color:var(--faint)}
+  #gate{background:linear-gradient(135deg,#181206,#14171c);border:1px solid rgba(212,169,78,.4)}
+  .prog{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:10px 0 4px}
+  .prog i{display:block;height:100%;background:var(--gold);border-radius:99px;transition:width .4s}
+  canvas{width:100%;max-height:220px}
+  dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:var(--r);padding:20px;max-width:440px;margin:auto}
+  dialog::backdrop{background:rgba(0,0,0,.6)}
+  dialog h3{color:var(--gold);margin-bottom:8px;font-size:16px}
+  dialog p{font-size:14px;margin-bottom:8px}
+  .quiz{margin-top:10px}
+  .quiz button{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 12px;margin-bottom:6px;cursor:pointer;font-size:13.5px}
+  .quiz button.right{border-color:var(--green);color:var(--green)}
+  .quiz button.wrong{border-color:var(--red);color:var(--red)}
+  @media(max-width:640px){.fbar{min-width:90px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">AGRAVAT <span>·</span> Meta Ads Command Center</div>
+    <div class="today" id="hdrDate"></div>
+  </header>
+
+  <nav>
+    <button class="on" data-t="mission">🎯 Daily Mission</button>
+    <button data-t="funnel">📊 Funnel</button>
+    <button data-t="leads">👥 Leads</button>
+    <button data-t="learn">🎓 Learn</button>
+    <button data-t="comply">🛡️ Compliance</button>
+    <button data-t="scale">📈 Scaling Rules</button>
+  </nav>
+
+  <!-- ============ MISSION ============ -->
+  <div class="tab on" id="tab-mission">
+    <div class="card" id="gate">
+      <h2>🚀 Launch Runway — <em id="gatePct">0%</em> ready</h2>
+      <p class="sub">The Command Center runs on real data. Real data comes from live ads. Finish this checklist and switch the campaigns ON.</p>
+      <div class="prog"><i id="gateBar" style="width:0%"></i></div>
+      <div id="gateList"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔗 Connect Meta Ads Manager <span class="sub">(auto-fills spend, clicks, conversations, CTR, frequency)</span></h2>
+      <p class="sub">Paste your Ad Account ID and a Meta access token. The token is saved <b>only in this browser</b> — never sent anywhere except directly to Meta. <span class="info" onclick="explain('token')">i</span></p>
+      <div class="grid g4">
+        <div><label>Ad Account ID</label><input id="m_act" placeholder="act_2270655129657581"></div>
+        <div><label>Access token (ads_read)</label><input id="m_tok" type="password" placeholder="paste token"></div>
+        <div><label>Day to fetch</label><input type="date" id="m_date"></div>
+        <div style="display:flex;align-items:flex-end;gap:8px"><button class="btn" style="margin:0;flex:1" onclick="metaSync()">Sync from Meta</button></div>
+      </div>
+      <div id="m_out" class="sub" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Log today's numbers <span class="sub">(Sync fills the ad metrics — you add orders, revenue & reply time from WhatsApp)</span></h2>
+      <div class="grid g4">
+        <div><label>Date</label><input type="date" id="f_date"></div>
+        <div><label>Ad spend (₹)</label><input type="number" id="f_spend" placeholder="1700"></div>
+        <div><label>Link clicks</label><input type="number" id="f_clicks" placeholder="120"></div>
+        <div><label>Conversations started</label><input type="number" id="f_conv" placeholder="45"></div>
+        <div><label>Orders</label><input type="number" id="f_orders" placeholder="5"></div>
+        <div><label>Revenue (₹)</label><input type="number" id="f_rev" placeholder="5000"></div>
+        <div><label>Avg first-reply time (min)</label><input type="number" id="f_reply" placeholder="12"></div>
+        <div><label>CTR % (from Ads Manager)</label><input type="number" step="0.01" id="f_ctr" placeholder="1.8"></div>
+        <div><label>Frequency (from Ads Manager)</label><input type="number" step="0.1" id="f_freq" placeholder="1.4"></div>
+        <div><label>Best ad (name)</label><input type="text" id="f_best" placeholder="DocVideo-Hindi"></div>
+      </div>
+      <button class="btn" onclick="saveDay()">Save today</button>
+    </div>
+
+    <div class="card" id="kpiCard" style="display:none">
+      <h2>Today at a glance — <em id="kpiDate"></em></h2>
+      <div class="grid g4" id="kpiGrid"></div>
+    </div>
+
+    <div class="card" id="coachCard" style="display:none">
+      <h2>🧠 AI Coach — what to do next</h2>
+      <div id="coachList"></div>
+    </div>
+
+    <div class="card" id="histCard" style="display:none">
+      <h2>Last 14 days</h2>
+      <div style="overflow-x:auto"><table id="histTable"></table></div>
+    </div>
+  </div>
+
+  <!-- ============ FUNNEL ============ -->
+  <div class="tab" id="tab-funnel">
+    <div class="card">
+      <h2>The AGRAVAT funnel <span class="sub">(totals from your logged days)</span></h2>
+      <div id="funnelViz"><p class="sub">No data yet. The funnel draws itself from your Daily Mission logs — which need live ads. 🎯</p></div>
+    </div>
+    <div class="card"><h2>Spend vs Revenue</h2><canvas id="chart" height="220"></canvas></div>
+    <div class="card" id="funnelCoach" style="display:none"><h2>🧠 Weakest stage</h2><div id="funnelCoachBody"></div></div>
+  </div>
+
+  <!-- ============ LEADS ============ -->
+  <div class="tab" id="tab-leads">
+    <div class="card">
+      <h2>Add lead</h2>
+      <div class="grid g4">
+        <div><label>Name</label><input id="l_name" placeholder="Ramesh bhai"></div>
+        <div><label>Phone</label><input id="l_phone" placeholder="98XXXXXXXX"></div>
+        <div><label>Source</label><select id="l_src"><option>FB Ad</option><option>IG Ad</option><option>Referral</option><option>Status</option><option>Clinic</option><option>Google</option><option>Dentist Partner</option></select></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn" style="margin:0;width:100%" onclick="addLead()">Add</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Pipeline <span class="sub" id="leadCounts"></span></h2>
+      <p class="sub" style="margin-bottom:10px">Stages: New → Contacted → Interested → Follow-up → Call Scheduled → Ordered → Repeat · Lost. Rule: no lead sits in "New" past 15 minutes during ad hours.</p>
+      <div id="leadList"><p class="sub">No leads yet — they arrive when ads go live.</p></div>
+    </div>
+  </div>
+
+  <!-- ============ LEARN ============ -->
+  <div class="tab" id="tab-learn">
+    <div class="card">
+      <h2>🎓 Meta Ads school — with AGRAVAT examples</h2>
+      <p class="sub">Tap any lesson. Ask Claude (your AI coach) for deeper answers anytime — with your real numbers.</p>
+    </div>
+    <div id="lessons"></div>
+  </div>
+
+  <!-- ============ COMPLIANCE ============ -->
+  <div class="tab" id="tab-comply">
+    <div class="card">
+      <h2>🛡️ Pre-publish compliance check</h2>
+      <p class="sub">Paste your ad copy / script below. Healthcare ads get rejected — or the whole account restricted — for words this checker catches.</p>
+      <label>Ad text</label>
+      <textarea id="c_text" rows="5" placeholder="Paste your ad primary text, headline, or video script here…"></textarea>
+      <button class="btn" onclick="checkComply()">Check before publishing</button>
+      <div id="c_out" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <h2>The 5 permanent rules for AGRAVAT ads</h2>
+      <div class="coach red"><b>Never address the viewer's condition.</b> "Kya AAPKO OSMF hai?" ❌ → "OSMF kya hai aur uski care" ✅ (Meta personal-attributes policy)</div>
+      <div class="coach red"><b>Never promise cure.</b> cure / ilaaj / guaranteed / 100% result ❌ → care, relief, management ✅ (Meta policy + your medical ethics)</div>
+      <div class="coach red"><b>No before/after images or timeframe claims.</b> "2 hafte mein theek" ❌</div>
+      <div class="coach red"><b>No graphic or shocking mouth images.</b> Clean, clinical, hopeful.</div>
+      <div class="coach green"><b>Lead with the doctor.</b> Your face + "dentist-made" is compliant AND your strongest hook.</div>
+    </div>
+  </div>
+
+  <!-- ============ SCALING ============ -->
+  <div class="tab" id="tab-scale">
+    <div class="card">
+      <h2>📈 When to scale, kill, duplicate — the rulebook</h2>
+      <div class="coach green"><b>Increase budget (+20%/day max)</b> when an ad set has spent ≥3 days, cost/conversation is under ₹40, and ROAS ≥ 3×. Never edit a winner — raising budget >20% or editing restarts the Learning Phase.</div>
+      <div class="coach green"><b>Duplicate to scale bigger</b> when a winner has 50+ conversions of data — duplicate the ad set, double budget on the copy, leave the original untouched.</div>
+      <div class="coach red"><b>Kill an ad</b> after ~₹1,500–2,000 spend if cost/conversation is >2× your best ad, or CTR &lt; 0.8%. Judge on 3–4 day windows, never on one bad day.</div>
+      <div class="coach amber"><b>Refresh creative</b> when frequency > 2.5 and CTR has fallen ~20%+ from its peak — that's creative fatigue. New hook (first 3 sec) counts as new creative.</div>
+      <div class="coach amber"><b>Launch retargeting</b> once the pixel/page audiences have ~1,000+ people. Cheapest conversions you'll ever buy.</div>
+      <div class="coach green"><b>Launch Lookalike (1%)</b> after ~100+ purchases are tracked. Before that, broad + strong creative beats everything.</div>
+      <div class="coach amber"><b>Expand geography</b> only after Gujarat + gutka-belt states are profitable for 2+ consecutive weeks.</div>
+      <div class="coach red"><b>Never scale a leaking funnel.</b> If reply time >15 min or follow-ups are missed, more budget = more waste. Fix conversion first, then scale traffic.</div>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlg"><h3 id="dlgT"></h3><div id="dlgB"></div><button class="btn2" style="margin-top:10px" onclick="dlg.close()">Close</button></dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const store={get:(k,d)=>{try{return JSON.parse(localStorage.getItem('agv_'+k))??d}catch(e){return d}},set:(k,v)=>localStorage.setItem('agv_'+k,JSON.stringify(v))};
+const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+$('hdrDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+$('f_date').value=new Date().toISOString().slice(0,10);
+
+/* ---- tabs ---- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');$('tab-'+b.dataset.t).classList.add('on');
+  if(b.dataset.t==='funnel')renderFunnel();
+});
+
+/* ---- launch gate ---- */
+const gateItems=[
+ ['WhatsApp Business ready','Greeting, away message, 15 quick-reply scripts, labels, catalog with OSMF Kit first'],
+ ['Superfone ready','IVR recorded, missed-call assistant ON, call recording ON'],
+ ['Meta plumbing done','Page + Instagram + WhatsApp connected in Business Manager, payment method verified, Pixel on website'],
+ ['Doctor video shot','40-sec talking-head, subtitles, face + "Dentist" in first 3 seconds'],
+ ['Product demo + static creative ready','Kit demo video + kit photo static'],
+ ['Campaigns built (PAUSED)','Campaign 1 CTWA ₹1,200/day + Campaign 2 retargeting ₹300/day, ice-breakers set'],
+ ['Reply owner assigned','One named person answers every chat <15 min during ad hours'],
+ ['ADS SWITCHED ON 🔥','₹1,700/day live. The Command Center comes alive today.']
+];
+function renderGate(){
+  const done=store.get('gate',[]);
+  $('gateList').innerHTML=gateItems.map((g,i)=>`
+    <div class="check ${done.includes(i)?'done':''}" onclick="toggleGate(${i})">
+      <input type="checkbox" ${done.includes(i)?'checked':''} onclick="event.stopPropagation();toggleGate(${i})">
+      <div><div class="t">${g[0]}</div><div class="d">${g[1]}</div></div>
+    </div>`).join('');
+  const pct=Math.round(done.length/gateItems.length*100);
+  $('gatePct').textContent=pct+'%';$('gateBar').style.width=pct+'%';
+  if(pct===100){$('gate').querySelector('.sub').innerHTML='<b style="color:var(--green)">Machine is LIVE. Log your numbers every evening below — the coach takes over from here.</b>';}
+}
+function toggleGate(i){let d=store.get('gate',[]);d=d.includes(i)?d.filter(x=>x!==i):[...d,i];store.set('gate',d);renderGate();}
+renderGate();
+
+/* ---- daily log ---- */
+function saveDay(){
+  const e={date:$('f_date').value,spend:+$('f_spend').value||0,clicks:+$('f_clicks').value||0,conv:+$('f_conv').value||0,orders:+$('f_orders').value||0,rev:+$('f_rev').value||0,reply:+$('f_reply').value||0,ctr:+$('f_ctr').value||0,freq:+$('f_freq').value||0,best:$('f_best').value||''};
+  if(!e.date){alert('Pick a date');return}
+  let days=store.get('days',[]).filter(d=>d.date!==e.date);days.push(e);days.sort((a,b)=>a.date.localeCompare(b.date));
+  store.set('days',days);renderDay();renderFunnel();
+}
+function renderDay(){
+  const days=store.get('days',[]);if(!days.length)return;
+  const d=days[days.length-1],prev=days.length>1?days[days.length-2]:null;
+  const cpc=d.conv?d.spend/d.conv:0,cpa=d.orders?d.spend/d.orders:0,roas=d.spend?d.rev/d.spend:0,cr=d.conv?d.orders/d.conv*100:0;
+  $('kpiCard').style.display='block';$('kpiDate').textContent=d.date;
+  const K=(l,v,cls,tip,t)=>`<div class="kpi"><div class="l">${l} <span class="info" onclick="explain('${tip}')">i</span></div><div class="v ${cls}">${v}</div><div class="t">${t||''}</div></div>`;
+  $('kpiGrid').innerHTML=
+    K('Spend',fmt(d.spend),'','spend')+
+    K('Revenue',fmt(d.rev),d.rev>=d.spend*3?'good':d.rev>=d.spend?'warn':'bad','revenue')+
+    K('ROAS',roas.toFixed(2)+'×',roas>=3?'good':roas>=1.5?'warn':'bad','roas','target ≥3×')+
+    K('Conversations',d.conv,'','conversations')+
+    K('Cost / Conversation',d.conv?fmt(cpc):'—',cpc&&cpc<=40?'good':cpc<=60?'warn':'bad','cpconv','target ₹15–40')+
+    K('Orders',d.orders,'','orders')+
+    K('CPA',d.orders?fmt(cpa):'—',cpa&&cpa<=300?'good':'bad','cpa','target <₹300')+
+    K('Conv→Order',cr.toFixed(1)+'%',cr>=8?'good':cr>=4?'warn':'bad','convrate','target 8–15%')+
+    K('Reply time',d.reply+' min',d.reply<=15?'good':d.reply<=30?'warn':'bad','reply','target <15 min')+
+    K('CTR',d.ctr+'%',d.ctr>=1.2?'good':d.ctr>=0.8?'warn':'bad','ctr','healthy >1.2%')+
+    K('Frequency',d.freq||'—',d.freq&&d.freq<2.5?'good':'warn','freq','refresh at >2.5');
+  /* coach */
+  const tips=[];
+  const add=(cls,head,body)=>tips.push(`<div class="coach ${cls}"><b>${head}</b> ${body}</div>`);
+  if(d.reply>15)add('red','Reply time is your biggest leak.',`${d.reply} min average. Healthcare CTWA leads go cold after ~1 hour — every minute past 15 costs orders. Fix this before touching any ad setting.`);
+  if(cpc>60&&d.conv>0)add('red','Cost per conversation too high.',`${fmt(cpc)} vs target ₹15–40. If one ad is dragging the average, kill it (check Ads Manager per-ad). If all ads are expensive, the creative hook is weak — new first-3-seconds.`);
+  if(cpc&&cpc<=40&&roas>=3&&d.spend>0)add('green','This is scale-worthy.',`Cost/conversation ${fmt(cpc)} and ROAS ${roas.toFixed(1)}× — after 3 consecutive days like this, raise the winning ad set budget 20%.`);
+  if(cr<8&&d.conv>=20)add('amber','Leads come, orders don\'t.',`${cr.toFixed(1)}% conversation→order. The ads work; the chat is leaking. Are you sending Script 3 fast, using the honesty answer (Script 5), and calling hesitant leads via Superfone same-day?`);
+  if(d.freq>2.5)add('amber','Audience fatigue approaching.',`Frequency ${d.freq} — the same people see the ad repeatedly. Prepare a fresh hook this week before CTR slides.`);
+  if(prev&&prev.ctr&&d.ctr&&d.ctr<prev.ctr*0.8)add('amber','CTR dropped '+Math.round((1-d.ctr/prev.ctr)*100)+'% vs last log.',`Creative fatigue or wrong audience mix. If frequency is also rising, it's fatigue — refresh creative.`);
+  if(prev&&prev.reply&&d.reply>prev.reply*2)add('red','Reply time worsening.',`${prev.reply} → ${d.reply} min. Whoever owns the phone today — that's the problem to solve tonight.`);
+  if(roas>=3&&d.orders>0)add('green','ROAS ≥3× — the funnel is profitable.',`Keep everything unchanged for 3 days, then scale per the rulebook. Do not celebrate by editing the winner.`);
+  if(d.spend>0&&d.conv===0)add('red','Spend but zero conversations.',`Check: is the WhatsApp number connected correctly to the ad? Is the ad approved and delivering? This is a plumbing problem, not a marketing problem.`);
+  if(!tips.length)add('','Log looks steady.','Keep the routine: reply <15 min, follow-ups at 100%, judge ads on 3–4 day windows.');
+  tips.push(`<div class="coach"><b>Priority for tomorrow:</b> ${d.reply>15?'Get reply time under 15 minutes — assign the phone to one person with notifications on.':cpc>60?'Kill the worst ad and let budget flow to '+(d.best||'your best ad')+'.':cr<8&&d.conv>=20?'Call every 🟡 Interested lead via Superfone before noon.':'Feed the winner: '+(d.best||'best ad')+' — and touch nothing else.'}</div>`);
+  $('coachCard').style.display='block';$('coachList').innerHTML=tips.join('');
+  /* history */
+  $('histCard').style.display='block';
+  const rows=days.slice(-14).reverse().map(x=>{const r=x.spend?x.rev/x.spend:0;return `<tr><td>${x.date.slice(5)}</td><td>${fmt(x.spend)}</td><td>${x.conv}</td><td>${x.conv?fmt(x.spend/x.conv):'—'}</td><td>${x.orders}</td><td>${fmt(x.rev)}</td><td class="${r>=3?'good':r>=1.5?'warn':'bad'}">${r.toFixed(1)}×</td><td>${x.reply}m</td></tr>`}).join('');
+  $('histTable').innerHTML='<tr><th>Date</th><th>Spend</th><th>Convs</th><th>₹/Conv</th><th>Orders</th><th>Revenue</th><th>ROAS</th><th>Reply</th></tr>'+rows;
+}
+
+/* ---- funnel ---- */
+function renderFunnel(){
+  const days=store.get('days',[]);if(!days.length){drawChart();return}
+  const s=days.reduce((a,d)=>({spend:a.spend+d.spend,clicks:a.clicks+d.clicks,conv:a.conv+d.conv,orders:a.orders+d.orders,rev:a.rev+d.rev}),{spend:0,clicks:0,conv:0,orders:0,rev:0});
+  const repeats=store.get('leads',[]).filter(l=>l.stage==='Repeat').length;
+  const stages=[['Meta Ad clicks',s.clicks],['WhatsApp conversations',s.conv],['Orders',s.orders],['Repeat customers',repeats]];
+  const max=Math.max(s.clicks,1);
+  let html='';
+  stages.forEach((st,i)=>{
+    const w=Math.max(st[1]/max*100,14);
+    html+=`<div class="fstage"><div class="fbar" style="width:${w}%">${st[1]}</div><div><b style="font-size:13.5px">${st[0]}</b><div class="fmeta">${i>0&&stages[i-1][1]?Math.round(st[1]/stages[i-1][1]*100)+'% of previous stage':''}</div></div></div>`;
+    if(i<stages.length-1&&stages[i][1]) html+=`<div class="drop">↓ drop-off: ${Math.max(0,Math.round((1-(stages[i+1][1]/stages[i][1]))*100))}%</div>`;
+  });
+  html+=`<p class="sub" style="margin-top:8px">Total: ${fmt(s.spend)} spent → ${fmt(s.rev)} revenue → <b class="${s.rev>=3*s.spend?'good':'warn'}">${s.spend?(s.rev/s.spend).toFixed(1):0}× ROAS</b></p>`;
+  $('funnelViz').innerHTML=html;
+  /* weakest stage */
+  const r1=s.clicks?s.conv/s.clicks:0,r2=s.conv?s.orders/s.conv:0;
+  let msg;
+  if(s.clicks<50)msg='Not enough clicks yet to judge. Let ads run 3–4 days before conclusions.';
+  else if(r1<0.25)msg='<b class="bad">Click → conversation is the leak ('+Math.round(r1*100)+'%).</b> People click but don\'t send the message. Fix: make the ad\'s promise match the WhatsApp opening; use ice-breaker questions; check the number connects properly.';
+  else if(r2<0.08)msg='<b class="bad">Conversation → order is the leak ('+Math.round(r2*100)+'%).</b> Ads are fine — the chat is losing them. Faster pitch (Script 3), honesty answer (Script 5), and Superfone calls to every hesitant lead same-day.';
+  else msg='<b class="good">Both stages healthy.</b> The bottleneck is now volume — scale per the rulebook, and protect reply time as you grow.';
+  $('funnelCoach').style.display='block';$('funnelCoachBody').innerHTML='<div class="coach">'+msg+'</div>';
+  drawChart();
+}
+function drawChart(){
+  const c=$('chart'),days=store.get('days',[]).slice(-14);const ctx=c.getContext('2d');
+  const W=c.width=c.offsetWidth*2,H=c.height=440;ctx.scale(1,1);ctx.clearRect(0,0,W,H);
+  if(!days.length){ctx.fillStyle='#6b7480';ctx.font='24px sans-serif';ctx.fillText('No data yet — log days in Daily Mission.',30,H/2);return}
+  const max=Math.max(...days.map(d=>Math.max(d.spend,d.rev)),1),pad=50,bw=(W-pad*2)/days.length;
+  days.forEach((d,i)=>{
+    const x=pad+i*bw;
+    ctx.fillStyle='#3a3f47';ctx.fillRect(x+bw*0.15,H-40-(d.spend/max)*(H-90),bw*0.3,(d.spend/max)*(H-90));
+    ctx.fillStyle='#d4a94e';ctx.fillRect(x+bw*0.5,H-40-(d.rev/max)*(H-90),bw*0.3,(d.rev/max)*(H-90));
+    ctx.fillStyle='#6b7480';ctx.font='18px sans-serif';ctx.fillText(d.date.slice(8),x+bw*0.3,H-14);
+  });
+  ctx.fillStyle='#9aa3ad';ctx.font='20px sans-serif';ctx.fillText('■ grey = spend   ■ gold = revenue',pad,26);
+}
+
+/* ---- leads ---- */
+const STAGES=['New','Contacted','Interested','Follow-up','Call Scheduled','Ordered','Repeat','Lost'];
+const SCOLOR={New:'#60a5fa',Contacted:'#9aa3ad',Interested:'#fbbf24','Follow-up':'#fbbf24','Call Scheduled':'#d4a94e',Ordered:'#4ade80',Repeat:'#4ade80',Lost:'#f87171'};
+function addLead(){
+  const n=$('l_name').value.trim();if(!n)return alert('Name?');
+  const leads=store.get('leads',[]);
+  leads.unshift({id:Date.now(),name:n,phone:$('l_phone').value,src:$('l_src').value,stage:'New',note:'',ts:new Date().toISOString().slice(0,10)});
+  store.set('leads',leads);$('l_name').value='';$('l_phone').value='';renderLeads();
+}
+function renderLeads(){
+  const leads=store.get('leads',[]);
+  const counts=STAGES.map(s=>{const c=leads.filter(l=>l.stage===s).length;return c?`${s}: ${c}`:null}).filter(Boolean).join(' · ');
+  $('leadCounts').textContent=counts?'— '+counts:'';
+  if(!leads.length){$('leadList').innerHTML='<p class="sub">No leads yet — they arrive when ads go live.</p>';return}
+  $('leadList').innerHTML=leads.map(l=>`
+    <div class="lead">
+      <span class="pill" style="background:${SCOLOR[l.stage]}22;color:${SCOLOR[l.stage]}">${l.stage}</span>
+      <span class="nm">${l.name}</span><span class="src">${l.src} · ${l.ts}${l.phone?' · '+l.phone:''}</span>
+      <select onchange="setStage(${l.id},this.value)">${STAGES.map(s=>`<option ${s===l.stage?'selected':''}>${s}</option>`).join('')}</select>
+      <input placeholder="note (e.g. asked price, call Thursday)" value="${(l.note||'').replace(/"/g,'&quot;')}" onchange="setNote(${l.id},this.value)">
+      <span class="del" onclick="delLead(${l.id})">×</span>
+    </div>`).join('');
+}
+function setStage(id,s){const L=store.get('leads',[]);const l=L.find(x=>x.id===id);if(l)l.stage=s;store.set('leads',L);renderLeads();}
+function setNote(id,n){const L=store.get('leads',[]);const l=L.find(x=>x.id===id);if(l)l.note=n;store.set('leads',L);}
+function delLead(id){store.set('leads',store.get('leads',[]).filter(x=>x.id!==id));renderLeads();}
+renderLeads();
+
+/* ---- metric explainers (info icons + lessons) ---- */
+const EXPLAIN={
+ spend:['Ad Spend','What Meta charged you today. Rule: spend is only "cost" if the funnel leaks — with ROAS ≥3× it\'s inventory purchasing, like dad buying stock.'],
+ revenue:['Revenue (WhatsApp-attributed)','Only count orders from chats labeled "FB Ad". Counting everything makes ads look better than they are — and lying to yourself costs money.'],
+ roas:['ROAS — Return on Ad Spend','Revenue ÷ Spend. ₹1,700 spent, ₹5,100 revenue = 3× ROAS. Your floor is 3× because product cost + delivery eat the rest. Below 1.5× for 4+ days = pause and fix the funnel, don\'t feed it.'],
+ conversations:['Conversations Started','People who clicked the ad AND sent a first message. This is your real "lead" number — clicks that don\'t message are window shoppers.'],
+ cpconv:['Cost per Conversation','Spend ÷ conversations. India healthcare CTWA healthy range: ₹15–40. Above ₹60 = weak creative hook or wrong audience. This is your #1 ad-buying metric.'],
+ orders:['Orders','Confirmed orders from ad conversations today. If conversations are high but orders low, the problem is the chat, not the ad.'],
+ cpa:['CPA — Cost per Acquisition','Spend ÷ orders. Kit at ₹999+ needs CPA under ₹300 to be strongly profitable after product costs.'],
+ convrate:['Conversation → Order Rate','Orders ÷ conversations. 8–15% is achievable with fast replies + Superfone calls to hesitant leads. Below 4% = chats are being answered too slowly or without the scripts.'],
+ reply:['First-Reply Time','Minutes from lead\'s first message to your first human reply. Under 15 min doubles conversion vs 2+ hours. This metric is free money — it costs discipline, not budget.'],
+ ctr:['CTR — Click-Through Rate','% of people who saw the ad and clicked. Above 1.2% = strong creative. Below 0.8% = weak hook — fix the first 3 seconds, not the targeting.'],
+ freq:['Frequency','Average times each person has seen your ad. Above 2.5–3, people start ignoring it (audience fatigue) and CPM rises. Cure: fresh creative, not more budget.'],
+ token:['Meta Access Token — how to get one','1) Go to developers.facebook.com → create a (free) app if you don\'t have one. 2) Open Tools → Graph API Explorer, select your app, add permissions ads_read + read_insights, click "Generate Access Token" and log in. 3) Paste the token here. Tokens expire (~1–2 hours for quick ones; use Access Token Debugger → "Extend" for ~60 days). The token is stored only in this browser\'s localStorage and sent only to graph.facebook.com. Never share it with anyone — it\'s a key to your ad account.']
+};
+function explain(k){const e=EXPLAIN[k];if(!e)return;$('dlgT').textContent=e[0];$('dlgB').innerHTML='<p>'+e[1]+'</p>';dlg.showModal();}
+
+/* ---- lessons ---- */
+const LESSONS=[
+['Meta Ads 101 — how the machine works','<p>You pay Meta to show your ad to people likely to act. Meta\'s algorithm learns from every click and message WHO responds, and finds more people like them. Your job: give it a clear goal (WhatsApp conversations), a strong creative, and stable settings so it can learn.</p><div class="eg"><b>AGRAVAT example:</b> Your CTWA campaign tells Meta "find people who will message me about the OSMF kit." Meta studies who messages, then hunts for lookalike behavior across the gutka belt.</div><p class="mist">Mistake: changing settings daily. Every edit restarts learning — like waking a student every 20 minutes and expecting them to pass the exam.</p>'],
+['Campaign structure','<p>Three levels: <b>Campaign</b> (the goal — e.g. WhatsApp messages) → <b>Ad Set</b> (who sees it: audience, budget, placement) → <b>Ad</b> (what they see: your video/image). Small budgets want FEW ad sets so data concentrates and learning finishes.</p><div class="eg"><b>AGRAVAT:</b> Campaign 1 (CTWA) → Ad Set A broad gutka-belt men → 3 ads (doctor video, demo, static).</div><p class="mist">Mistake: 10 ad sets on ₹1,700/day. Each gets ₹170 — nobody learns anything.</p>'],
+['The Learning Phase','<p>New/edited ad sets spend their first ~50 conversions "learning" — performance is unstable and often expensive. Exiting learning = stable costs. Big edits (budget +>20%, new creative, audience change) restart it.</p><div class="eg"><b>AGRAVAT:</b> Day 1–3 cost/conversation may be ₹70 and drop to ₹30 by day 5. Panic-pausing on day 2 kills the ad exactly when it was about to get cheap.</div><p class="mist">Mistake: judging any ad before ~₹1,500 spend or 3 days.</p>'],
+['CBO vs ABO (budget placement)','<p><b>ABO</b>: you set budget per ad set — full control, best for testing. <b>CBO</b> (Advantage campaign budget): Meta shifts budget between ad sets automatically — best after you know your winners.</p><div class="eg"><b>AGRAVAT:</b> Start ABO (₹1,200 on Ad Set A, split test B). After 2–3 weeks, move winners into one CBO campaign and let Meta allocate.</div>'],
+['Broad targeting beats interest stacking (2026 reality)','<p>Meta\'s algorithm now finds buyers from your CREATIVE better than from your interest checkboxes. Broad audience + a creative that screams "this is for gutka users with mouth-opening trouble" self-selects the right viewers.</p><div class="eg"><b>AGRAVAT:</b> Your doctor video saying "gutka ki wajah se mooh nahi khulta?" IS the targeting. A 25-year-old who never touched gutka scrolls past; your customer stops. That stop teaches Meta everything.</div><p class="mist">Mistake: narrowing to tiny interest audiences — costs rise, learning starves.</p>'],
+['CTWA campaigns — your weapon','<p>Click-to-WhatsApp ads open a chat with your business instead of a website. In India this is the highest-converting format for health products: no forms, no waiting, instant doctor access. Set 3 ice-breaker questions so leads open with known intent.</p><div class="eg"><b>AGRAVAT:</b> "OSMF Kit ki price?" tap → your /price quick reply answers in 10 seconds → pitch → order. Ad to order inside one hour is normal for motivated leads.</div>'],
+['Creative testing','<p>Test ONE variable at a time with 3–4 ads per ad set. The hook (first 3 seconds) matters most — most people decide to stop or scroll there. Let ~₹1,500 spend per ad decide, kill losers, feed winners.</p><div class="eg"><b>AGRAVAT tests that matter:</b> doctor video vs product demo · Hindi vs Gujarati · "mooh kholne mein taklif" hook vs "gutka ka asar" hook.</div><p class="mist">Mistake: testing 2 things at once (new video AND new audience) — when results change you won\'t know why.</p>'],
+['Retargeting','<p>Show ads to people who already engaged (watched 50% of video, visited site, messaged but didn\'t buy). They know you — so conversions cost 3–5× less. Needs audience size (~1,000+) before it works.</p><div class="eg"><b>AGRAVAT:</b> A man watched your whole video but didn\'t click. For 3 weeks he sees testimonial-angle ads. Week 4, his mouth feels tighter — whose name does he remember? Yours.</div>'],
+['Pixel & Conversions API','<p>The Pixel is a tracker on your website telling Meta who visited and bought. Conversions API (CAPI) sends the same from the server — more reliable now that phones block trackers. Together they let Meta optimize toward BUYERS, not clickers, and power retargeting + lookalikes.</p><div class="eg"><b>AGRAVAT:</b> Website Purchase events accumulate → at 100+ purchases, launch a 1% Lookalike of buyers — statistically your cheapest scale audience.</div>'],
+['Lookalike audiences','<p>Give Meta a list of your customers; it finds the 1% of India most similar to them. Powerful ONLY when the source list is quality (100+ real buyers, not leads).</p><p class="mist">Mistake: lookalike of "everyone who messaged" — you\'ll clone window-shoppers.</p>'],
+['Attribution — who gets credit','<p>Attribution = which ad gets credit for an order. Meta grades its own homework generously (7-day click). Your defense: label every WhatsApp lead by source and count revenue yourself. Your sheet is the truth; Ads Manager is the estimate.</p><div class="eg"><b>AGRAVAT:</b> "FB Ad" label + daily revenue log in this dashboard = attribution you can trust when deciding to scale to ₹75k.</div>'],
+['Audience & creative fatigue','<p>Same people seeing the same ad = fatigue. Signals: frequency >2.5, CTR falling, CPM rising. Cure: new creative (new hook counts), new format, or wider audience.</p><div class="eg"><b>AGRAVAT:</b> Doctor video great for 3 weeks, then CTR slides 1.8%→1.1% with frequency 3.2. Same message, new opening line + new setting (chairside, kit in hand) — CTR recovers.</div>'],
+['Advantage+ tools','<p>Meta\'s automation family: Advantage+ placements (Meta picks where ads show — use it), Advantage+ audience (expands beyond your targeting — fine with broad), Advantage+ creative (auto-tweaks — test carefully with health compliance).</p><p class="mist">Mistake for AGRAVAT: letting auto-generated text alter medical wording. Review every variation — compliance is YOUR responsibility, not the algorithm\'s.</p>'],
+['Healthcare compliance (account survival)','<p>Health is a restricted category. Never imply the viewer HAS a condition ("kya aapko OSMF hai?" ❌), never promise cures or timeframes, no before/after, no shocking imagery. Violations reject ads; repeats restrict the account — and the account is now the business.</p><div class="eg"><b>Safe AGRAVAT framing:</b> talk about the condition and the care ("OSMF care, dentist-made, doctor guidance included") — never about the viewer\'s body.</div>'],
+['A/B testing discipline','<p>An A/B test = two versions, ONE difference, same conditions, enough data (~₹1,500+ each), then a decision. Anything less is astrology.</p><div class="eg"><b>AGRAVAT week-2 test:</b> same video, Hindi vs Gujarati subtitles, ₹2,000 each. Winner takes the full budget. One clean answer per week beats five muddy ones.</div>']
+];
+$('lessons').innerHTML=LESSONS.map((l,i)=>`<div class="lesson" id="ls${i}"><button onclick="ls${i}.classList.toggle('open')">${l[0]}</button><div class="body">${l[1]}</div></div>`).join('');
+
+/* ---- compliance checker ---- */
+const RULES=[
+ [/\b(cure|cured|cures|ilaaj|ilaj|guarantee|guaranteed|100%|permanent solution|pakka result|zaroor theek)\b/gi,'Cure/guarantee claim','Use: "care", "relief", "management", "support". Never promise outcomes.'],
+ [/(aapko .{0,20}(hai|hua)|do you (have|suffer)|kya aapko|are you suffering|tumhe .{0,15}hai)/gi,'Personal-attribute callout (Meta ban)','Talk about the condition, not the viewer: "OSMF kya hai" ✅ instead of "kya aapko OSMF hai" ❌'],
+ [/\b(before.after|before\/after|pehle.baad|2 (hafte|week|din) (mein|me)|(\d+) (din|hafte|week)s? (mein|me) (theek|result|farak))\b/gi,'Timeframe/before-after claim','Remove time promises. "Regular use se aaram" is safe; "2 hafte mein theek" is not.'],
+ [/\b(cancer[- ]?free|anti[- ]?cancer|cancer (ka )?(ilaaj|cure|treatment))\b/gi,'Cancer claim','Never. This is both a Meta ban and a medical-ethics line. OSMF ads must not promise cancer prevention.'],
+ [/\b(miracle|magical|jaadu|chamatkar|instant relief|turant aaram)\b/gi,'Miracle language','Replace with honest language — your credibility IS the brand: "dentist-made", "doctor guidance".'],
+ [/\b(weight loss guaranteed|lose \d+ ?kg)\b/gi,'Weight-loss claim','Restricted phrasing — avoid numbers and guarantees entirely.']
+];
+function checkComply(){
+  const t=$('c_text').value;if(!t.trim()){$('c_out').innerHTML='<p class="sub">Paste some text first.</p>';return}
+  let out='',hits=0;
+  RULES.forEach(r=>{const m=t.match(r[0]);if(m){hits++;out+=`<div class="flag"><b>⚠ ${r[1]}:</b> found "${[...new Set(m)].join('", "')}"<div class="fix">✓ Fix: ${r[2]}</div></div>`}});
+  if(!hits)out=`<div class="ok">✅ No banned patterns found. Final human check: does it address the viewer's body? Does it promise results? Would Dr. Kartavya say this to a patient's face? If all clear — publish.</div>`;
+  else out+=`<p class="sub" style="margin-top:6px">${hits} issue(s). Fix them before publishing — repeated rejections can restrict the whole ad account.</p>`;
+  $('c_out').innerHTML=out;
+}
+
+/* ---- Meta Ads Manager sync ---- */
+$('m_date').value=new Date().toISOString().slice(0,10);
+$('m_act').value=store.get('m_act','');
+$('m_tok').value=store.get('m_tok','');
+async function metaSync(){
+  const act=$('m_act').value.trim(),tok=$('m_tok').value.trim(),day=$('m_date').value;
+  const out=$('m_out');
+  if(!act||!tok){out.innerHTML='<span class="bad">Enter both Ad Account ID (starts with act_) and access token. Tap the ⓘ for how to get a token.</span>';return}
+  store.set('m_act',act);store.set('m_tok',tok);
+  out.textContent='Fetching from Meta…';
+  try{
+    const tr=encodeURIComponent(JSON.stringify({since:day,until:day}));
+    const url=`https://graph.facebook.com/v21.0/${act}/insights?level=account&fields=spend,impressions,clicks,inline_link_clicks,ctr,frequency,actions&time_range=${tr}&access_token=${encodeURIComponent(tok)}`;
+    const r=await fetch(url);const j=await r.json();
+    if(j.error){out.innerHTML='<span class="bad">Meta says: '+(j.error.message||'error')+'</span> — usually an expired token (generate a fresh one) or wrong account ID.';return}
+    if(!j.data||!j.data.length){out.innerHTML='<span class="warn">Connected ✓ but no spend data for '+day+' — ads weren\'t running that day. The connection works; now the campaigns need to be ON.</span>';return}
+    const d=j.data[0];
+    const conv=(d.actions||[]).filter(a=>/messaging_conversation_started/.test(a.action_type)).reduce((s,a)=>s+ +a.value,0);
+    $('f_date').value=day;
+    $('f_spend').value=Math.round(+d.spend||0);
+    $('f_clicks').value=+d.inline_link_clicks||+d.clicks||0;
+    $('f_conv').value=conv;
+    $('f_ctr').value=(+d.ctr||0).toFixed(2);
+    $('f_freq').value=(+d.frequency||0).toFixed(1);
+    out.innerHTML='<span class="good">✓ Synced from Meta: '+fmt(+d.spend)+' spend, '+(d.clicks||0)+' clicks, '+conv+' conversations started. Now add orders, revenue & reply time from WhatsApp and press <b>Save today</b>.</span>';
+  }catch(e){out.innerHTML='<span class="bad">Could not reach Meta ('+e.message+'). Check internet or token.</span>';}
+}
+renderDay();renderFunnel();
+</script>
+</body>
+</html>
