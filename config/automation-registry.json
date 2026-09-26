@@ -1,0 +1,13 @@
+{
+  "brand": "AGRAVAT",
+  "version": 1,
+  "automations": [
+    {"id":"amazon-daily-monitor","status":"planned","priority":1},
+    {"id":"osmf-lead-engine","status":"planned","priority":2},
+    {"id":"aisensy-followup","status":"planned","priority":3},
+    {"id":"seo-monitor","status":"planned","priority":4},
+    {"id":"website-health","status":"planned","priority":5},
+    {"id":"quick-commerce-monitor","status":"planned","priority":6},
+    {"id":"ceo-weekly-report","status":"planned","priority":7}
+  ]
+}
