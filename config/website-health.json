@@ -1,0 +1,8 @@
+{
+  "timeout_seconds": 15,
+  "endpoints": [
+    {"name": "AGRAVAT Store", "url": "https://www.agravat.com/", "required": true},
+    {"name": "Dr Agravat", "url": "https://dr.agravat.com/", "required": true},
+    {"name": "Dental Implant", "url": "https://dentalimplant.agravat.com/", "required": true}
+  ]
+}
