@@ -1,0 +1,28 @@
+name: AGRAVAT Automation Health
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [automation-hub-v1]
+    paths:
+      - ".github/workflows/**"
+      - "automation/**"
+      - "config/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Verify automation hub structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f automation/README.md
+          test -f config/automation-registry.json
+          python -m json.tool config/automation-registry.json >/dev/null
+          echo "AGRAVAT Automation Hub foundation is healthy."
