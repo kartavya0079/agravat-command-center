@@ -1,0 +1,39 @@
+name: Validate Amazon Analyzer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [automation-hub-v1]
+    paths:
+      - "automation/amazon/**"
+      - ".github/workflows/amazon-analyzer-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Create safe sample report
+        run: |
+          cat > /tmp/amazon-sample.csv <<'CSV'
+          SKU,ASIN,Sessions,Page Views,Units Ordered,Ordered Product Sales
+          OSMF-GEL,B000TEST01,100,130,2,998
+          OSMF-VITA,B000TEST02,50,65,0,0
+          CSV
+      - name: Analyze sample
+        run: python automation/amazon/analyze_business_report.py /tmp/amazon-sample.csv --output /tmp/summary.json
+      - name: Verify exception detection
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/summary.json'))
+          assert d['rows_analyzed']==2
+          assert any(x['type']=='traffic_no_sales' for x in d['exceptions'])
+          print('Amazon analyzer test passed.')
+          PY
