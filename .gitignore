@@ -1,0 +1,20 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Business exports / customer data
+data/
+exports/
+reports/private/
+*.xlsx
+*.xls
+
+# Generated analysis
+amazon-summary.json
+__pycache__/
+*.pyc
